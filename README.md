@@ -151,7 +151,7 @@ defmodule MyAppWeb.Router do
 
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
-      response_handler: MyAppWeb.AuthenticationResponseHandler
+      error_handler: MyAppWeb.AuthenticationErrorHandler
   end
 
   scope "/", MyAppWeb do
@@ -168,12 +168,12 @@ And define your callbacks module in your application. It may look
 something like the following in a phoenix application:
 
 ```elixir
-defmodule MyAppWeb.AuthenticationResponseHandler do
-  @behaviour Ueberauth.Strategy.Amco.ResponseHandler
+defmodule MyAppWeb.AuthenticationErrorHandler do
+  @behaviour Ueberauth.Strategy.Amco.ErrorHandler
 
   import Phoenix.Controller
 
-  @impl Ueberauth.Strategy.Amco.ResponseHandler
+  @impl Ueberauth.Strategy.Amco.ErrorHandler
   def access_token_error(conn, %{error: error}) do
     conn
     |> put_flash(:error, gettext(error))
@@ -194,7 +194,7 @@ defmodule MyAppWeb.Router do
 
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
-      response_handler: MyAppWeb.AuthenticationResponseHandler,
+      error_handler: MyAppWeb.AuthenticationErrorHandler,
       format: :json
   end
 
@@ -202,17 +202,17 @@ defmodule MyAppWeb.Router do
 end
 ```
 
-And then update your `ResponseHandler` to response with a json. It may
+And then update your `ErrorHandler` to response with a json. It may
 look something like this:
 
 ```elixir
-defmodule MyAppWeb.AuthenticationResponseHandler do
-  @behaviour Ueberauth.Strategy.Amco.ResponseHandler
+defmodule MyAppWeb.AuthenticationErrorHandler do
+  @behaviour Ueberauth.Strategy.Amco.ErrorHandler
 
   import Plug.Conn
   import Phoenix.Controller
 
-  @impl Ueberauth.Strategy.Amco.ResponseHandler
+  @impl Ueberauth.Strategy.Amco.ErrorHandler
   def access_token_error(conn, error) do
     conn
     |> put_status(:unauthorized)

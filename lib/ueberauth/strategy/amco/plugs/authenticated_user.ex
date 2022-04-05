@@ -13,20 +13,22 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   it will call the access_token_error function in the response handler.
   """
 
-  def init(opts), do: opts
+  def init(opts) do
+    unless Keyword.get(opts, :error_handler) do
+      raise "error_handler option is required."
+    end
+
+    opts
+  end
 
   def call(%Conn{} = conn, opts) do
     format = Keyword.get(opts, :format, :html)
-    handler = Keyword.fetch!(opts, :response_handler)
+    handler = Keyword.get(opts, :error_handler)
 
     with {:ok, token} <- get_access_token(conn, format),
-         {:ok, response} <- validate_access_token(token) do
-
-      if Keyword.has_key?(handler.__info__(:functions), :access_token_success) do
-        handler.access_token_success(conn, response)
-      end
-
+         {:ok, _response} <- validate_access_token(token) do
       conn
+
     else
       {:error, error} ->
         handler.access_token_error(conn, %{error: error})
