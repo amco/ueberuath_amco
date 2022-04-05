@@ -15,6 +15,8 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
     authorize_url: "https://oidc.amco.com/openid/authorize"
   ]
 
+  @introspect_path "/oauth/introspect"
+
   @doc """
   Construct a client for requests to Amco.
   This will be setup automatically for you in `Ueberauth.Strategy.Amco`.
@@ -36,6 +38,20 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
     |> OAuth2.Client.put_serializer("application/json", json_library)
   end
 
+  def authorize_access_token(token, opts \\ []) do
+    client = client(opts)
+
+    data = %{
+      token: token,
+      client_id: client.client_id,
+      client_secret: client.client_secret
+    }
+
+    OAuth2.Client.post(client, @introspect_path, data, [
+      {"Content-Type", "application/json"}
+    ])
+  end
+
   @doc """
   Provides the authorize url for the request phase of Ueberauth.
   No need to call this usually.
@@ -48,7 +64,7 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
 
   def get_access_token(params \\ [], opts \\ []) do
     opts
-    |> client
+    |> client()
     |> OAuth2.Client.get_token(params)
   end
 

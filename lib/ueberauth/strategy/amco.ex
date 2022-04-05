@@ -202,13 +202,7 @@ defmodule Ueberauth.Strategy.Amco do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :amco_token, token)
-    put_private(conn, :amco_user, %{
-      "sub" => "10",
-      "email" => "alejandrodevs@gmail.com",
-      "last_name" => "Gutierrez",
-      "first_name" => "Alejandro",
-      "phone_number" => "+523310971195"
-    })
+    put_private(conn, :amco_user, %{})
   end
 
   defp option(conn, key) do
