@@ -171,16 +171,13 @@ something like the following in a phoenix application:
 defmodule MyAppWeb.AuthenticationResponseHandler do
   @behaviour Ueberauth.Strategy.Amco.ResponseHandler
 
-  import Plug.Conn
   import Phoenix.Controller
 
   @impl Ueberauth.Strategy.Amco.ResponseHandler
-  def access_token_error(conn, response) do
+  def access_token_error(conn, %{error: error}) do
     conn
-    |> put_view(ErrorView)
-    |> put_status(:unauthorized)
-    |> render("401.html")
-    |> halt()
+    |> put_flash(:error, gettext(error))
+    |> redirect(to: "/login")
   end
 end
 ```
@@ -216,10 +213,10 @@ defmodule MyAppWeb.AuthenticationResponseHandler do
   import Phoenix.Controller
 
   @impl Ueberauth.Strategy.Amco.ResponseHandler
-  def access_token_error(conn, %{error: error}) do
+  def access_token_error(conn, error) do
     conn
     |> put_status(:unauthorized)
-    |> json(%{error: error})
+    |> json(error)
     |> halt()
   end
 end

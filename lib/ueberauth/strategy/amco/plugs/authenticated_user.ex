@@ -21,9 +21,12 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
 
     with {:ok, token} <- get_access_token(conn, format),
          {:ok, response} <- validate_access_token(token) do
-      handler.access_token_success(conn, response)
-      conn
 
+      if Keyword.has_key?(handler.__info__(:functions), :access_token_success) do
+        handler.access_token_success(conn, response)
+      end
+
+      conn
     else
       {:error, error} ->
         handler.access_token_error(conn, %{error: error})
