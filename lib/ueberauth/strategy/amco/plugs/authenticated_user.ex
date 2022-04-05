@@ -1,6 +1,4 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
-  import Plug.Conn
-
   alias Plug.Conn
   alias Ueberauth.Strategy.Amco.API
 
@@ -12,36 +10,35 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
 
   If the access token is valid, the current user will be assigned to the
   connection and the request will continue as normal. In the other hand,
-  it will halt the request with an unauthorized code for json requests,
-  otherwise it will render the 401.html error view.
+  it will call the access_token_error function in the response handler.
   """
 
   def init(opts), do: opts
 
   def call(%Conn{} = conn, opts) do
     format = Keyword.get(opts, :format, :html)
-    handler = Keyword.get(opts, :response_handler)
+    handler = Keyword.fetch!(opts, :response_handler)
 
-    with {:ok, access_token} <- get_access_token(conn, format),
-         {:ok, response} <- validate_access_token(access_token) do
+    with {:ok, token} <- get_access_token(conn, format),
+         {:ok, response} <- validate_access_token(token) do
       handler.access_token_success(conn, response)
       conn
+
     else
       {:error, error} ->
-        response = %{error: error, format: format}
-        handler.access_token_error(conn, response)
+        handler.access_token_error(conn, %{error: error})
     end
   end
 
   defp get_access_token(%Conn{} = conn, :json) do
-    case get_req_header(conn, "authorization") do
+    case Conn.get_req_header(conn, "authorization") do
       ["Bearer " <> access_token] -> {:ok, access_token}
       _ -> {:error, :access_token_required}
     end
   end
 
   defp get_access_token(%Conn{} = conn, :html) do
-    case get_session(conn, :current_user) do
+    case Conn.get_session(conn, :current_user) do
       nil -> {:error, :access_token_required}
       user -> {:ok, user.credentials.token}
     end

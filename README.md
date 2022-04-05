@@ -151,7 +151,7 @@ defmodule MyAppWeb.Router do
 
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
-      callbacks: MyAppWeb.AuthenticationResponseHandler
+      response_handler: MyAppWeb.AuthenticationResponseHandler
   end
 
   scope "/", MyAppWeb do
@@ -197,7 +197,7 @@ defmodule MyAppWeb.Router do
 
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
-      callbacks: MyAppWeb.AuthenticationResponseHandler,
+      response_handler: MyAppWeb.AuthenticationResponseHandler,
       format: :json
   end
 
@@ -261,17 +261,6 @@ config :ueberauth, Ueberauth,
 To guard against client-side request modification, it's important to still
 check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct
 if you want to limit sign-in to a specific domain.
-
-## Testing
-
-To avoid hitting the OpenID Provider while tests are running, you
-can use the `Ueberauth.Strategy.Amco.Adapters.Mock` adapter in
-your `config/test.exs`:
-
-```elixir
-config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
-  adapter: Ueberauth.Strategy.Amco.Adapters.Mock
-```
 
 ## Copyright and License
 
