@@ -9,10 +9,10 @@ defmodule Ueberauth.Strategy.Amco.API.AccessToken do
 
   defp process_response({:ok, %Response{status_code: 200} = response}) do
     case response.body do
-      %{"active" => true} = data -> {:ok, data}
-      %{"active" => false} -> {:error, :expired}
+      %{"active" => true} -> {:ok, response.body}
+      %{"active" => false} -> {:error, :access_token_expired}
     end
   end
 
-  defp process_response(_), do: {:error, :invalid}
+  defp process_response(_), do: {:error, :access_token_invalid}
 end

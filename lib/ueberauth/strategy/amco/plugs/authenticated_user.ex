@@ -41,9 +41,9 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   end
 
   defp get_access_token(%Conn{} = conn, :html) do
-    case Conn.get_session(conn, :current_user) do
+    case Conn.get_session(conn, :access_token) do
       nil -> {:error, :access_token_required}
-      user -> {:ok, user.credentials.token}
+      token -> {:ok, token}
     end
   end
 
