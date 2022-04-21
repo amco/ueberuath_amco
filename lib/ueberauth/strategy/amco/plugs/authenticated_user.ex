@@ -1,6 +1,7 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   alias Plug.Conn
   alias Ueberauth.Strategy.Amco.API
+  alias Ueberauth.Strategy.Amco.Exceptions
 
   @moduledoc """
   This plug is in charge to verify and validate the access token
@@ -15,17 +16,21 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
 
   def init(opts) do
     unless Keyword.get(opts, :error_handler) do
-      raise "error_handler option is required."
+      raise Exceptions.EmptyErrorHandler
+    end
+
+    unless Keyword.get(opts, :access_token_source) do
+      raise Exceptions.EmptyAccessTokenSource
     end
 
     opts
   end
 
   def call(%Conn{} = conn, opts) do
-    format = Keyword.get(opts, :format, :html)
     handler = Keyword.get(opts, :error_handler)
+    source = Keyword.get(opts, :access_token_source)
 
-    with {:ok, token} <- get_access_token(conn, format),
+    with {:ok, token} <- get_access_token(conn, source),
          {:ok, _response} <- validate_access_token(token) do
       conn
 
@@ -35,14 +40,14 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     end
   end
 
-  defp get_access_token(%Conn{} = conn, :json) do
+  defp get_access_token(%Conn{} = conn, :headers) do
     case Conn.get_req_header(conn, "authorization") do
       ["Bearer " <> access_token] -> {:ok, access_token}
       _ -> {:error, :access_token_required}
     end
   end
 
-  defp get_access_token(%Conn{} = conn, :html) do
+  defp get_access_token(%Conn{} = conn, :session) do
     case Conn.get_session(conn, :access_token) do
       nil -> {:error, :access_token_required}
       token -> {:ok, token}

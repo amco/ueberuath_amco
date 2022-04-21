@@ -98,8 +98,9 @@ defmodule MyAppWeb.AuthController do
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     conn
     |> put_flash(:info, "Successfully authenticated.")
+    |> put_session(:access_token, auth.credentials.token)
+    |> put_session(:refresh_token, auth.credentials.refresh_token)
     |> configure_session(renew: true)
-    |> put_session(:auth, auth)
     |> redirect(to: "/")
   end
 end
@@ -139,6 +140,8 @@ end
 
 ## Protected Routes
 
+### Web-based applications
+
 Use the plug `Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser` in
 your protected routes. This will get the access token from session
 and validate it against the IDP (OIDC Identity Provider).
@@ -147,11 +150,10 @@ and validate it against the IDP (OIDC Identity Provider).
 defmodule MyAppWeb.Router do
   use MyAppWeb, :router
 
-  # ... pipelines
-
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
-      error_handler: MyAppWeb.AuthenticationErrorHandler
+      error_handler: MyAppWeb.AuthenticationErrorHandler,
+      access_token_source: :session
   end
 
   scope "/", MyAppWeb do
@@ -159,8 +161,6 @@ defmodule MyAppWeb.Router do
 
     # Add your protected routes here
   end
-
-  # ... routes
 end
 ```
 
@@ -182,7 +182,9 @@ defmodule MyAppWeb.AuthenticationErrorHandler do
 end
 ```
 
-If your app requires json response you'll need to add `format: :json`
+### JSON API applications
+
+If your app requires json response you'll need to add `access_token_source: :headers`
 to the plug options. It will get the access token from the request
 header `Authorization: Bearer <access_token>`.
 
@@ -190,15 +192,11 @@ header `Authorization: Bearer <access_token>`.
 defmodule MyAppWeb.Router do
   use MyAppWeb, :router
 
-  # ... pipelines
-
   pipeline :protected do
     plug Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
       error_handler: MyAppWeb.AuthenticationErrorHandler,
-      format: :json
+      access_token_source: :headers
   end
-
-  # ... routes
 end
 ```
 
@@ -230,9 +228,9 @@ Depending on the configured url you can initiate the request through:
 
 Or with options:
 
-    /auth/amco?scope=email%20profile
+    /auth/amco?scope=email%20profile&strategy=phone_number
 
-By default the requested scope is "openid email". Scope can be configured
+By default the requested scope is `openid profile email`. Scope can be configured
 either explicitly as a `scope` query value on the request path or in your
 configuration:
 
@@ -243,15 +241,25 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-You can also pass options such as the `strategy` parameter to suggest a
-particular Authentication flow or `prompt` to specify whether the OIDC Provider
-prompts the End-User for reauthentication (`prompt: "login"`) or create an
-account (`prompt: "create"`).
+By default the strategy to be used is `default`. Strategy can be configured
+either explicitly as a `strategy` query value on the request path or in your
+configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    amco: {Ueberauth.Strategy.Amco, [strategy: "phone_number", prompt: "create"]}
+    amco: {Ueberauth.Strategy.Amco, [default_strategy: "phone_number"]}
+  ]
+```
+
+By default prompt is not present in the authorization url. Prompt can be
+configured either explicitly as a `prompt` query value on the request
+path or in your configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    amco: {Ueberauth.Strategy.Amco, [default_prompt: "login"]}
   ]
 ```
 
