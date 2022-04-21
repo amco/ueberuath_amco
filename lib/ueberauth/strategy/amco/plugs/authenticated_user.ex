@@ -30,7 +30,7 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     handler = Keyword.get(opts, :error_handler)
     source = Keyword.get(opts, :access_token_source)
 
-    with {:ok, token} <- get_access_token(conn, format),
+    with {:ok, token} <- get_access_token(conn, source),
          {:ok, _response} <- validate_access_token(token) do
       conn
 
