@@ -18,12 +18,16 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
       raise "error_handler option is required."
     end
 
+    unless Keyword.get(opts, :access_token_source) do
+      raise "access_token_source option is required."
+    end
+
     opts
   end
 
   def call(%Conn{} = conn, opts) do
-    format = Keyword.get(opts, :format, :html)
     handler = Keyword.get(opts, :error_handler)
+    source = Keyword.get(opts, :access_token_source)
 
     with {:ok, token} <- get_access_token(conn, format),
          {:ok, _response} <- validate_access_token(token) do
@@ -35,14 +39,14 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     end
   end
 
-  defp get_access_token(%Conn{} = conn, :json) do
+  defp get_access_token(%Conn{} = conn, :headers) do
     case Conn.get_req_header(conn, "authorization") do
       ["Bearer " <> access_token] -> {:ok, access_token}
       _ -> {:error, :access_token_required}
     end
   end
 
-  defp get_access_token(%Conn{} = conn, :html) do
+  defp get_access_token(%Conn{} = conn, :session) do
     case Conn.get_session(conn, :access_token) do
       nil -> {:error, :access_token_required}
       token -> {:ok, token}
