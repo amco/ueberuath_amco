@@ -1,6 +1,7 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   alias Plug.Conn
   alias Ueberauth.Strategy.Amco.API
+  alias Ueberauth.Strategy.Amco.Exceptions
 
   @moduledoc """
   This plug is in charge to verify and validate the access token
@@ -15,11 +16,11 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
 
   def init(opts) do
     unless Keyword.get(opts, :error_handler) do
-      raise "error_handler option is required."
+      raise Exceptions.EmptyErrorHandler
     end
 
     unless Keyword.get(opts, :access_token_source) do
-      raise "access_token_source option is required."
+      raise Exceptions.EmptyAccessTokenSource
     end
 
     opts
