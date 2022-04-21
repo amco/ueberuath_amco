@@ -10,9 +10,9 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
 
   @defaults [
     strategy: __MODULE__,
-    site: "https://oidc.amco.com",
-    token_url: "https://oidc.amco.com/oauth/token",
-    authorize_url: "https://oidc.amco.com/openid/authorize"
+    site: "https://idp.amco.com",
+    token_url: "https://idp.amco.com/oauth/token",
+    authorize_url: "https://idp.amco.com/openid/authorize"
   ]
 
   @introspect_path "/oauth/introspect"
