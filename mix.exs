@@ -12,7 +12,9 @@ defmodule UeberauthAmco.MixProject do
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      source_url: @source_url,
+      homepage_url: @source_url
     ]
   end
 
@@ -35,11 +37,9 @@ defmodule UeberauthAmco.MixProject do
 
   defp docs do
     [
-      extras: ["CHANGELOG.md", "CONTRIBUTING.md", "README.md"],
       main: "readme",
-      source_url: @source_url,
-      homepage_url: @source_url,
-      formatters: ["html"]
+      formatters: ["html"],
+      extras: ["CHANGELOG.md", "CONTRIBUTING.md", "README.md"]
     ]
   end
 
@@ -50,8 +50,8 @@ defmodule UeberauthAmco.MixProject do
       maintainers: ["Alejandro Gutiérrez"],
       licenses: ["MIT"],
       links: %{
-        Changelog: "https://hexdocs.pm/ueberauth_amco/changelog.html",
-        GitHub: @source_url
+        GitHub: @source_url,
+        Changelog: "https://hexdocs.pm/ueberauth_amco/changelog.html"
       }
     ]
   end

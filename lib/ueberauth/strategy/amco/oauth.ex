@@ -11,8 +11,8 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
   @defaults [
     strategy: __MODULE__,
     site: "https://idp.amco.me",
-    token_url: "https://idp.amco.me/oauth2/token",
-    authorize_url: "https://idp.amco.me/oauth2/authorize"
+    token_url: "/oauth2/token",
+    authorize_url: "/oauth2/authorize"
   ]
 
   @userinfo_path "/oauth2/userinfo"
