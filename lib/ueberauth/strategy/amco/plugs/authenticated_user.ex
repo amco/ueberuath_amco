@@ -35,7 +35,6 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
          {:ok, claims} <- API.userinfo(access_token) do
       user = struct(User, claims)
       Conn.assign(conn, :current_user, user)
-
     else
       {:error, error} ->
         handler.access_token_error(conn, %{error: error})
