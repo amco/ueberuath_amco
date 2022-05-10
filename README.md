@@ -32,6 +32,7 @@
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
+      site: System.get_env("AMCO_IDP_URL"),
       client_id: System.get_env("AMCO_CLIENT_ID"),
       client_secret: System.get_env("AMCO_CLIENT_SECRET")
     ```
@@ -41,6 +42,7 @@
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
+      site: {System, :get_env, ["AMCO_IDP_URL"]},
       client_id: {System, :get_env, ["AMCO_CLIENT_ID"]},
       client_secret: {System, :get_env, ["AMCO_CLIENT_SECRET"]}
     ```
