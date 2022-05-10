@@ -33,7 +33,8 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
 
     with {:ok, access_token} <- get_access_token(conn, source),
          {:ok, claims} <- API.userinfo(access_token) do
-      user = struct(User, claims)
+      attrs = user_attributes_from_claims(claims)
+      user = struct(User, attrs)
       Conn.assign(conn, :current_user, user)
     else
       {:error, error} ->
@@ -53,5 +54,18 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
       nil -> {:error, :access_token_required}
       token -> {:ok, token}
     end
+  end
+
+  defp user_attributes_from_claims(claims) do
+    Enum.reduce(claims, %{}, fn {claim, value}, attrs ->
+      case claim do
+        "sub" -> Map.put(attrs, :id, value)
+        "email" -> Map.put(attrs, :email, value)
+        "given_name" -> Map.put(attrs, :first_name, value)
+        "family_name" -> Map.put(attrs, :last_name, value)
+        "phone_number" -> Map.put(attrs, :phone_number, value)
+        _ -> attrs
+      end
+    end)
   end
 end
