@@ -1,6 +1,7 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   alias Plug.Conn
   alias Ueberauth.Strategy.Amco.API
+  alias Ueberauth.Strategy.Amco.User
   alias Ueberauth.Strategy.Amco.Exceptions
 
   @moduledoc """
@@ -30,10 +31,11 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     handler = Keyword.get(opts, :error_handler)
     source = Keyword.get(opts, :access_token_source)
 
-    with {:ok, token} <- get_access_token(conn, source),
-         {:ok, _response} <- validate_access_token(token) do
-      conn
-
+    with {:ok, access_token} <- get_access_token(conn, source),
+         {:ok, claims} <- API.userinfo(access_token) do
+      attrs = user_attributes_from_claims(claims)
+      user = struct(User, attrs)
+      Conn.assign(conn, :current_user, user)
     else
       {:error, error} ->
         handler.access_token_error(conn, %{error: error})
@@ -54,10 +56,16 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     end
   end
 
-  defp validate_access_token(access_token) do
-    case API.authorize_access_token(access_token) do
-      {:ok, response} -> {:ok, response}
-      {:error, error} -> {:error, error}
-    end
+  defp user_attributes_from_claims(claims) do
+    Enum.reduce(claims, %{}, fn {claim, value}, attrs ->
+      case claim do
+        "sub" -> Map.put(attrs, :id, value)
+        "email" -> Map.put(attrs, :email, value)
+        "given_name" -> Map.put(attrs, :first_name, value)
+        "family_name" -> Map.put(attrs, :last_name, value)
+        "phone_number" -> Map.put(attrs, :phone_number, value)
+        _ -> attrs
+      end
+    end)
   end
 end
