@@ -20,13 +20,9 @@ defmodule Ueberauth.Strategy.Amco.API do
 
   """
   def userinfo(access_token) do
-    OAuth.userinfo(access_token)
-    |> process_userinfo_response()
+    case OAuth.userinfo(access_token) do
+      {:ok, %Response{status_code: 200, body: body}} -> {:ok, body}
+      _ -> {:error, :access_token_invalid}
+    end
   end
-
-  defp process_userinfo_response({:ok, %Response{status_code: 200, body: body}}) do
-    {:ok, BetterParams.symbolize_merge(body, drop_string_keys: true)}
-  end
-
-  defp process_userinfo_response(_), do: {:error, :access_token_invalid}
 end

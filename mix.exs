@@ -30,7 +30,6 @@ defmodule UeberauthAmco.MixProject do
     [
       {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.7.0"},
-      {:better_params, "~> 0.5.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
