@@ -171,6 +171,7 @@ something like the following in a phoenix application:
 defmodule MyAppWeb.AuthenticationErrorHandler do
   @behaviour Ueberauth.Strategy.Amco.ErrorHandler
 
+  import Plug.Conn
   import Phoenix.Controller
 
   @impl Ueberauth.Strategy.Amco.ErrorHandler
@@ -178,6 +179,7 @@ defmodule MyAppWeb.AuthenticationErrorHandler do
     conn
     |> put_flash(:error, gettext(error))
     |> redirect(to: "/login")
+    |> halt()
   end
 end
 ```

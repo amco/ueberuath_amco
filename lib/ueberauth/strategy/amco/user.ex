@@ -1,15 +1,15 @@
 defmodule Ueberauth.Strategy.Amco.User do
   @type t :: %__MODULE__{
-          id: binary | nil,
+          sub: binary | nil,
           email: binary | nil,
-          last_name: binary | nil,
-          first_name: binary | nil,
+          given_name: binary | nil,
+          family_name: binary | nil,
           phone_number: binary | nil
         }
 
-  defstruct id: nil,
+  defstruct sub: nil,
             email: nil,
-            last_name: nil,
-            first_name: nil,
+            given_name: nil,
+            family_name: nil,
             phone_number: nil
 end

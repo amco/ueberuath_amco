@@ -182,8 +182,8 @@ defmodule Ueberauth.Strategy.Amco do
     %Info{
       email: user["email"],
       phone: user["phone_number"],
-      last_name: user["last_name"],
-      first_name: user["first_name"]
+      last_name: user["family_name"],
+      first_name: user["given_name"]
     }
   end
 

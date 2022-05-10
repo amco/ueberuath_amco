@@ -10,12 +10,12 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
 
   @defaults [
     strategy: __MODULE__,
-    site: "https://oidc.amco.com",
-    token_url: "https://oidc.amco.com/oauth/token",
-    authorize_url: "https://oidc.amco.com/openid/authorize"
+    site: "https://idp.amco.me",
+    token_url: "https://idp.amco.me/oauth2/token",
+    authorize_url: "https://idp.amco.me/oauth2/authorize"
   ]
 
-  @introspect_path "/oauth/introspect"
+  @userinfo_path "/oauth2/userinfo"
 
   @doc """
   Construct a client for requests to Amco.
@@ -38,16 +38,11 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
     |> OAuth2.Client.put_serializer("application/json", json_library)
   end
 
-  def authorize_access_token(token, opts \\ []) do
+  def userinfo(access_token, opts \\ []) do
     client = client(opts)
+    data = %{access_token: access_token}
 
-    data = %{
-      token: token,
-      client_id: client.client_id,
-      client_secret: client.client_secret
-    }
-
-    OAuth2.Client.post(client, @introspect_path, data, [
+    OAuth2.Client.post(client, @userinfo_path, data, [
       {"Content-Type", "application/json"}
     ])
   end

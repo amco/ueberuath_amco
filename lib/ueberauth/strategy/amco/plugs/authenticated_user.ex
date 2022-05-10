@@ -1,6 +1,7 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
   alias Plug.Conn
   alias Ueberauth.Strategy.Amco.API
+  alias Ueberauth.Strategy.Amco.User
   alias Ueberauth.Strategy.Amco.Exceptions
 
   @moduledoc """
@@ -30,9 +31,10 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     handler = Keyword.get(opts, :error_handler)
     source = Keyword.get(opts, :access_token_source)
 
-    with {:ok, token} <- get_access_token(conn, source),
-         {:ok, _response} <- validate_access_token(token) do
-      conn
+    with {:ok, access_token} <- get_access_token(conn, source),
+         {:ok, claims} <- API.userinfo(access_token) do
+      user = struct(User, claims)
+      Conn.assign(conn, :current_user, user)
 
     else
       {:error, error} ->
@@ -51,13 +53,6 @@ defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser do
     case Conn.get_session(conn, :access_token) do
       nil -> {:error, :access_token_required}
       token -> {:ok, token}
-    end
-  end
-
-  defp validate_access_token(access_token) do
-    case API.authorize_access_token(access_token) do
-      {:ok, response} -> {:ok, response}
-      {:error, error} -> {:error, error}
     end
   end
 end
