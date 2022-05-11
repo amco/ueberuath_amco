@@ -8,9 +8,10 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
   """
   use OAuth2.Strategy
 
+  alias Ueberauth.Strategy.Amco.Exceptions
+
   @defaults [
     strategy: __MODULE__,
-    site: "https://idp.amco.me",
     token_url: "/oauth2/token",
     authorize_url: "/oauth2/authorize"
   ]
@@ -32,6 +33,10 @@ defmodule Ueberauth.Strategy.Amco.OAuth do
       |> Keyword.merge(opts)
 
     json_library = Ueberauth.json_library()
+
+    unless Keyword.has_key?(opts, :site) do
+      raise Exceptions.MissingSiteConfiguration
+    end
 
     opts
     |> OAuth2.Client.new()
