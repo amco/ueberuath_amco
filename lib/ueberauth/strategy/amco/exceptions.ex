@@ -7,5 +7,5 @@ defmodule Ueberauth.Strategy.Amco.Exceptions.EmptyAccessTokenSource do
 end
 
 defmodule Ueberauth.Strategy.Amco.Exceptions.MissingSiteConfiguration do
-  defexception message: "Configuration option 'site' is missed"
+  defexception message: "Configuration option 'site' is missing"
 end
