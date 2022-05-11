@@ -27,8 +27,7 @@
 
 4.  Update your provider configuration:
 
-    Use that if you want to read client ID/secret from the environment
-    variables in the compile time:
+    Example 1: Using environment variables at compile time:
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
@@ -37,14 +36,22 @@
       client_secret: System.get_env("AMCO_CLIENT_SECRET")
     ```
 
-    Use that if you want to read client ID/secret from the environment
-    variables in the run time:
+    Example 2: Using environment variables from a runtime file:
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
       site: {System, :get_env, ["AMCO_IDP_URL"]},
       client_id: {System, :get_env, ["AMCO_CLIENT_ID"]},
       client_secret: {System, :get_env, ["AMCO_CLIENT_SECRET"]}
+    ```
+
+    Example 3: Using strings in a managed file at runtime:
+
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.Amco.OAuth,
+      site: "https://my_idp.example.com",
+      client_id: "my client id",
+      client_secret: "my client secret"
     ```
 
 5.  Include the Überauth plug in your controller:
