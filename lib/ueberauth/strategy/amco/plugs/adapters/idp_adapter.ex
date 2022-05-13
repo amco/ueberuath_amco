@@ -1,6 +1,6 @@
 defmodule Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser.IdpAdapter do
   @moduledoc """
-  This plug is in charge to verify and validate the access token
+  This adapter is in charge to verify and validate the access token
   provided in the request against the OpenID Connect Provider.
   It will try to get the access token from headers for json requests,
   otherwise from cookies.

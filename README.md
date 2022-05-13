@@ -289,7 +289,7 @@ if you want to limit sign-in to a specific domain.
 
 In test environment you should avoid making requests to authenticate
 users in protected routes. In order to do that, you can configure the
-`MockAdapter` for the `AuthenticatedUser` in your `config/test.exs`:
+`MockAdapter` for the `AuthenticatedUser` plug in your `config/test.exs`:
 
 ```elixir
 config :ueberauth, Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
