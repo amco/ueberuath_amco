@@ -1,6 +1,6 @@
 defmodule Ueberauth.Strategy.Amco.ErrorHandler do
   @type conn :: Plug.Conn
-  @type response :: Map.t()
+  @type response :: map()
 
   @doc """
   This callbacks is called when the access token couldn't be validated
