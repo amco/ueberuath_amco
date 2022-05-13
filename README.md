@@ -149,6 +149,14 @@ end
 
 ## Protected Routes
 
+Protecting a route means that incoming requests should contain an
+access token. That access token will be validated against the
+Identity Provider to verify it has not expired and is still valid.
+If the access token is valid, you will have the current user in the
+`conn.assigns[:current_user]` based on the claims returned by de IdP.
+Otherwise the error handler will be called and the connection must be
+halted.
+
 ### Web-based applications
 
 Use the plug `Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser` in
@@ -186,8 +194,7 @@ defmodule MyAppWeb.AuthenticationErrorHandler do
   @impl Ueberauth.Strategy.Amco.ErrorHandler
   def access_token_error(conn, %{error: error}) do
     conn
-    |> put_flash(:error, gettext(error))
-    |> redirect(to: "/login")
+    |> redirect(to: "/auth/amco")
     |> halt()
   end
 end
@@ -225,7 +232,7 @@ defmodule MyAppWeb.AuthenticationErrorHandler do
   def access_token_error(conn, error) do
     conn
     |> put_status(:unauthorized)
-    |> json(error)
+    |> json(%{error: error})
     |> halt()
   end
 end
@@ -277,6 +284,17 @@ config :ueberauth, Ueberauth,
 To guard against client-side request modification, it's important to still
 check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct
 if you want to limit sign-in to a specific domain.
+
+## Testing
+
+In test environment you should avoid making requests to authenticate
+users in protected routes. In order to do that, you can configure the
+`MockAdapter` for the `AuthenticatedUser` in your `config/test.exs`:
+
+```elixir
+config :ueberauth, Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser,
+  adapter: Ueberauth.Strategy.Amco.Plugs.AuthenticatedUser.MockAdapter
+```
 
 ## Copyright and License
 
