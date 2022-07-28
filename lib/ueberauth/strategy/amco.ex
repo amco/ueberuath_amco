@@ -66,6 +66,7 @@ defmodule Ueberauth.Strategy.Amco do
   """
 
   use Ueberauth.Strategy,
+    default_theme: "default",
     default_strategy: "default",
     default_scope: "openid profile email",
     uid_field: "sub"
@@ -94,6 +95,7 @@ defmodule Ueberauth.Strategy.Amco do
       |> with_prompt_param(conn)
       |> with_redirect_uri(conn)
       |> with_strategy_param(conn)
+      |> with_theme_param(conn)
 
     redirect!(conn, Amco.OAuth.authorize_url!(params, opts))
   end
@@ -225,6 +227,11 @@ defmodule Ueberauth.Strategy.Amco do
   defp with_strategy_param(opts, conn) do
     strategy = conn.params["strategy"] || option(conn, :default_strategy)
     opts |> Keyword.put(:strategy, strategy)
+  end
+
+  defp with_theme_param(opts, conn) do
+    theme = conn.params["theme"] || option(conn, :default_theme)
+    opts |> Keyword.put(:theme, theme)
   end
 
   defp with_prompt_param(opts, conn) do
