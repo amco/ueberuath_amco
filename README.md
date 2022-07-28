@@ -270,6 +270,17 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+By default the theme to be used is `default`. Theme can be configured
+either explicitly as a `theme` query value on the request path or in your
+configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    amco: {Ueberauth.Strategy.Amco, [default_theme: "dark"]}
+  ]
+```
+
 By default prompt is not present in the authorization url. Prompt can be
 configured either explicitly as a `prompt` query value on the request
 path or in your configuration:
