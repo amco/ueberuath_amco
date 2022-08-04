@@ -281,6 +281,17 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+By default the brand to be used is `amco`. Branding can be configured
+either explicitly as a `branding` query value on the request path or in your
+configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    amco: {Ueberauth.Strategy.Amco, [default_branding: "avanza"]}
+  ]
+```
+
 By default prompt is not present in the authorization url. Prompt can be
 configured either explicitly as a `prompt` query value on the request
 path or in your configuration:

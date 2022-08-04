@@ -67,6 +67,7 @@ defmodule Ueberauth.Strategy.Amco do
 
   use Ueberauth.Strategy,
     default_theme: "default",
+    default_branding: "amco",
     default_strategy: "default",
     default_scope: "openid profile email",
     uid_field: "sub"
@@ -90,12 +91,13 @@ defmodule Ueberauth.Strategy.Amco do
 
     params =
       []
-      |> with_scopes(conn)
       |> with_state_param(conn)
       |> with_prompt_param(conn)
       |> with_redirect_uri(conn)
-      |> with_strategy_param(conn)
-      |> with_theme_param(conn)
+      |> with_query_param(conn, :scope)
+      |> with_query_param(conn, :theme)
+      |> with_query_param(conn, :strategy)
+      |> with_query_param(conn, :branding)
 
     redirect!(conn, Amco.OAuth.authorize_url!(params, opts))
   end
@@ -219,19 +221,10 @@ defmodule Ueberauth.Strategy.Amco do
     Keyword.put(opts, :redirect_uri, callback_url(conn))
   end
 
-  defp with_scopes(opts, conn) do
-    scopes = conn.params["scope"] || option(conn, :default_scope)
-    opts |> Keyword.put(:scope, scopes)
-  end
-
-  defp with_strategy_param(opts, conn) do
-    strategy = conn.params["strategy"] || option(conn, :default_strategy)
-    opts |> Keyword.put(:strategy, strategy)
-  end
-
-  defp with_theme_param(opts, conn) do
-    theme = conn.params["theme"] || option(conn, :default_theme)
-    opts |> Keyword.put(:theme, theme)
+  defp with_query_param(opts, conn, param) do
+    default_param = String.to_existing_atom("default_" <> to_string(param))
+    scopes = conn.params[to_string(param)] || option(conn, default_param)
+    opts |> Keyword.put(param, scopes)
   end
 
   defp with_prompt_param(opts, conn) do
